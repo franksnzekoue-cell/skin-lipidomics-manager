@@ -19,6 +19,7 @@ tab1, tab2 = st.tabs(["📋 Liste des références", "➕ Ajouter une référenc
 # ===========================================================================
 # TAB 1 — LISTE
 # ===========================================================================
+# 
 with tab1:
     refs_df = df_query("""
         SELECT r.*, p.name as project_name
@@ -57,9 +58,13 @@ with tab1:
             relevance_icon = {"Haute": "🔴", "Moyenne": "🟡", "Basse": "🟢"}.get(row["relevance"], "⚪")
             with st.expander(f"{relevance_icon} **{row['title']}** ({row['year']})"):
                 st.write(f"**Auteurs :** {row['authors']}")
-                st.write(f"**Journal :** {row['journal']} ({row['year']})")
+                
+                # Modification ici : Rendre le journal cliquable si une URL/DOI existe
                 if row["doi_url"]:
-                    st.write(f"**DOI/URL :** {row['doi_url']}")
+                    st.markdown(f"**Journal :** [{row['journal']}]({row['doi_url']}) ({row['year']}) 🔗 *(Cliquer pour ouvrir)*")
+                else:
+                    st.write(f"**Journal :** {row['journal']} ({row['year']})")
+                
                 st.write(f"**Tags :** {row['topic_tags']}")
                 st.write(f"**Résumé :** {row['summary']}")
                 st.write(f"**Projet associé :** {row['project_name'] or '—'}")
@@ -72,7 +77,6 @@ with tab1:
 
         csv = filtered.to_csv(index=False).encode("utf-8")
         st.download_button("⬇️ Exporter en CSV", csv, "bibliographie.csv", "text/csv")
-
 # ===========================================================================
 # TAB 2 — AJOUTER
 # ===========================================================================
